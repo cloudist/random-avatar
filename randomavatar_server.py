@@ -19,6 +19,7 @@ define('min_avatar_size', default=1, type=int)
 define('max_avatar_size', default=300, type=int)
 define('default_avatar_size', default=72, type=int)
 define('cache_items', default=1000, type=int)
+define('antialias', default=4, type=int)  # 默认 4x 抗锯齿
 
 
 def hex2rgb(hex_code):
@@ -90,7 +91,8 @@ class RandomAvatarHandler(tornado.web.RequestHandler):
         avatar_file = self.avatar_cache.get(key ^ avatar_size)
 
         if avatar_file is None:
-            avatar = generate_avatar(key, avatar_size)
+            avatar = generate_avatar(key, avatar_size*options.antialias)
+            avatar = avatar.resize((avatar_size, avatar_size), PIL.Image.ANTIALIAS)
             output = StringIO.StringIO()
             avatar.save(output, format='PNG')
             avatar_file = output.getvalue()
